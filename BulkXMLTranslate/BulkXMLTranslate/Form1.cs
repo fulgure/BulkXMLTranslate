@@ -20,6 +20,7 @@ namespace BulkXMLTranslate
         const string MATCH_TEXT = @"<text>(.+?)<\/text>";
         const string NEW_FILE_SUFFIX = "-translated";
         public readonly Encoding DEFAULT = Encoding.GetEncoding("windows-1251");
+        public bool UseGoogleAPI { get; set; } = true;
         public Form1()
         {
             InitializeComponent();
@@ -77,7 +78,11 @@ namespace BulkXMLTranslate
             tstLblInfo.Text = $"Done saving";
         }
 
-        private void lst_SelectChanged(object sender, EventArgs e) => tbxLonger.Text = ((ListBox)sender).SelectedItem.ToString();
+        private void lst_SelectChanged(object sender, EventArgs e)
+        {
+            if ((ListBox)sender != null)
+                tbxLonger.Text = ((ListBox)sender).SelectedItem.ToString();
+        }
 
         private void LoadLanguages()
         {
@@ -125,6 +130,12 @@ namespace BulkXMLTranslate
 
         private TranslatedString[] GetTranslatedStringFromSourceIndex(int index = -1)
         {
+            Func<string[], string, string, ToolStripProgressBar, ToolStripLabel, string[]> Translate;
+            if (UseGoogleAPI)
+                Translate = GoogleTranslate.Translate;
+            else
+                Translate = YandexAPI.Translate;
+
             List<TranslatedString> result = new List<TranslatedString>();
             string destText = cmbDest.Text;
             Language currentDest = cmbDest.Items.Cast<Language>().Where(x => (x.Label == destText || x.Code == destText)).First();
@@ -137,10 +148,10 @@ namespace BulkXMLTranslate
                 for (int i = 0; i < lstSource.Items.Count; i++)
                     chunks.Add((lstSource.Items[i] as StringFromFile).Text);
 
-                translatedText = YandexAPI.Translate(chunks.ToArray(), selectedSourceLangCode, currentDest.Code);
+                translatedText = Translate(chunks.ToArray(), selectedSourceLangCode, currentDest.Code, tstProgress, tstLblInfo);
             }
             else
-                translatedText = YandexAPI.Translate(new string[] { lstSource.Items[index].ToString() }, selectedSourceLangCode, currentDest.Code);
+                translatedText = Translate(new string[] { lstSource.Items[index].ToString() }, selectedSourceLangCode, currentDest.Code, tstProgress, tstLblInfo);
 
             int cpt = 0;
             foreach (string str in translatedText)
@@ -169,7 +180,7 @@ namespace BulkXMLTranslate
         {
             OpenFileDialog ofd = new OpenFileDialog();
             ofd.Filter = "XML files (*.xml)|*.xml";
-            if(ofd.ShowDialog() == DialogResult.OK)
+            if (ofd.ShowDialog() == DialogResult.OK)
             {
                 if (File.Exists(ofd.FileName))
                 {

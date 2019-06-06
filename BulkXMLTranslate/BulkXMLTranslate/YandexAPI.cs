@@ -1,20 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Text;
+using System.Windows.Forms;
 using System.Xml.Linq;
 
 namespace BulkXMLTranslate
 {
     static class YandexAPI
     {
-        public const string DETECT_LANG_CODE = "dtct";
+        public const string DETECT_LANG_CODE = "auto";
 
         private const string API_KEY = @"trnsl.1.1.20190605T231152Z.d08f785e8eadfae8.5414731b87f25f844d4e3611e997ebfb38f98422";
         private static string LANG_KEY = $"{Urls.LANGS}?{Args.KEY}={API_KEY}";
         private static string TRANSLATE_KEY = $"{Urls.TRANSLATE}?{Args.KEY}={API_KEY}";
-        private const int CHAR_LIMIT = 9500;
+        private const int CHAR_LIMIT = 9000;
 
 
         public static List<Language> GetLanguages(string returnLangCode = "en")
@@ -42,7 +44,7 @@ namespace BulkXMLTranslate
             return wr.GetResponseStream().ReadToEnd();
         }
 
-        private static string[] TranslateToXml(string[] text, string sourceLanguageCode, string destLanguageCode)
+        private static string[] TranslateToXml(string[] text, string sourceLanguageCode, string destLanguageCode, ToolStripProgressBar tspb, ToolStripLabel tsl)
         {
             List<List<string>> textChunks = new List<List<string>>();
             List<string> currChunk = new List<string>();
@@ -61,8 +63,15 @@ namespace BulkXMLTranslate
             if (currChunk.Count > 0)
                 textChunks.Add(currChunk);
             List<string> result = new List<string>();
+            int cpt = 0;
+            int max = textChunks.Sum((x) => x.Count);
             foreach (List<string> chunk in textChunks)
             {
+                if (tspb != null)
+                    tspb.Value = (cpt / max) * 100;
+                if (tsl != null)
+                    tsl.Text = $"Translated {cpt}/{max}";
+
                 string direction = (sourceLanguageCode == DETECT_LANG_CODE) ? destLanguageCode : $"{sourceLanguageCode}-{destLanguageCode}";
                 string url = $"{TRANSLATE_KEY}&{Args.LANG}={direction}";
                 foreach (string txt in chunk)
@@ -76,13 +85,14 @@ namespace BulkXMLTranslate
                 WebRequest rq = WebRequest.Create(url);
                 WebResponse wr = rq.GetResponse();
                 result.Add(wr.GetResponseStream().ReadToEnd());
+                cpt++;
             }
             return result.ToArray();
         }
 
-        public static string[] Translate(string[] text, string sourceLanguageCode, string destLanguageCode)
+        public static string[] Translate(string[] text, string sourceLanguageCode, string destLanguageCode, ToolStripProgressBar tspb, ToolStripLabel tsl)
         {
-            string[] rawXML = TranslateToXml(text, sourceLanguageCode, destLanguageCode);
+            string[] rawXML = TranslateToXml(text, sourceLanguageCode, destLanguageCode, tspb, tsl);
             List<string> result = new List<string>();
             foreach (string xml in rawXML)
             {
@@ -121,15 +131,5 @@ namespace BulkXMLTranslate
             public const string TEXT = "text";
         }
         #endregion
-    }
-    internal static class Extensions
-    {
-        public static string ReadToEnd(this Stream sm)
-        {
-            using (StreamReader str = new StreamReader(sm, Encoding.UTF8))
-            {
-                return str.ReadToEnd();
-            }
-        }
     }
 }
