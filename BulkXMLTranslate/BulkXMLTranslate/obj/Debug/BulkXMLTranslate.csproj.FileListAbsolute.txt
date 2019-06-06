@@ -1,0 +1,10 @@
+C:\Users\Marco\source\repos\BulkXMLTranslate\BulkXMLTranslate\bin\Debug\BulkXMLTranslate.exe.config
+C:\Users\Marco\source\repos\BulkXMLTranslate\BulkXMLTranslate\bin\Debug\BulkXMLTranslate.exe
+C:\Users\Marco\source\repos\BulkXMLTranslate\BulkXMLTranslate\bin\Debug\BulkXMLTranslate.pdb
+C:\Users\Marco\source\repos\BulkXMLTranslate\BulkXMLTranslate\obj\Debug\BulkXMLTranslate.csprojAssemblyReference.cache
+C:\Users\Marco\source\repos\BulkXMLTranslate\BulkXMLTranslate\obj\Debug\BulkXMLTranslate.Properties.Resources.resources
+C:\Users\Marco\source\repos\BulkXMLTranslate\BulkXMLTranslate\obj\Debug\BulkXMLTranslate.csproj.GenerateResource.cache
+C:\Users\Marco\source\repos\BulkXMLTranslate\BulkXMLTranslate\obj\Debug\BulkXMLTranslate.csproj.CoreCompileInputs.cache
+C:\Users\Marco\source\repos\BulkXMLTranslate\BulkXMLTranslate\obj\Debug\BulkXMLTranslate.exe
+C:\Users\Marco\source\repos\BulkXMLTranslate\BulkXMLTranslate\obj\Debug\BulkXMLTranslate.pdb
+C:\Users\Marco\source\repos\BulkXMLTranslate\BulkXMLTranslate\obj\Debug\BulkXMLTranslate.Form1.resources
